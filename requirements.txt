@@ -1,0 +1,5 @@
+cryptography
+requests
+impacket
+nest_asyncio
+requests[socks]

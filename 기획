@@ -1,0 +1,20 @@
+
+ssh: aywyfbvfylb3fjtzpxdpyvvrigpgewo76cb6k5w6zhbcfkdub4nnpiid.onion
+onion: urgewe6nofzhevaetkha5yo77f2k6jd5zn3bfcxlqnbfr2wjdba5bgid.onion
+
+페이로드:
+    랜섬웨어
+        웜
+    백도어(또는 rat), (접근하는 모든 usb 서버로 전송)
+        권한상승(CVE-2021-3156)
+        로그 제거
+    killer
+    
+
+와이파이:
+    주변 ap 스캔
+    내부 기기(내부ip) 스캔
+        os 취약점 존재 기기 표시(win7 등등)
+        내부ip 포트스캔
+    패스워드 크래킹
+    ap 포
