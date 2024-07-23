@@ -34,7 +34,8 @@ msf(4444): eubw6taemp4wg6ghsppt6cjxmruqh2b5u6ouqd2wc6qcemgciz3lkdid.onion
 
 페이로드:
     랜섬웨어
-        웜
+        네트워크 확산
+            원래는 타겟 ip를 서버가 받은 후 직접 eternalblue 로 공격하려 했으나, 통신3사가 smb 포트를 원천차단해놔서 랜섬웨어가 직접 내부 ip로 공격해야 함
 
     백도어(또는 rat)
         접근하는 모든 usb(일정 용량 이하)의 파일을 서버로 전송

